@@ -12,5 +12,6 @@ urlpatterns = [
     # giving all path names
     path('', views.store, name="store"),
     path('cart/', views.cart, name="cart"),
-    path('checkout/', views.checkout, name="checkout")
+    path('checkout/', views.checkout, name="checkout"),
+    path('register/', views.register, name="register"), # Added registered page
 ]
