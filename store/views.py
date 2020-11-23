@@ -1,5 +1,9 @@
 from django.shortcuts import render
+from django.views.generic.base import View
+
 from .models import *
+
+
 
 
 # The views created here are used to render the html files created
@@ -18,9 +22,9 @@ def cart(request):
         items = order.orderitem_set.all()
     else:
         items = []  # when a user isn't authenticated
-        order = {'get_cart-total':0, 'get_cart_items':0}
+        order = {'get_cart-total': 0, 'get_cart_items': 0}
 
-    context = {'items': items, 'order':order}
+    context = {'items': items, 'order': order}
     return render(request, 'store/cart.html', context)
 
 

@@ -25,7 +25,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    @property   # When an image isn't uploaded for a product, return empty string to avoid errors (called in store.html)
+    @property  # When an image isn't uploaded for a product, return empty string to avoid errors (called in store.html)
     def imageURL(self):
         try:
             url = self.image.url

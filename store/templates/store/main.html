@@ -106,34 +106,45 @@
             <ul class="navbar-nav mr-auto">
               <li class="nav-item active">
                 <a class="nav-link" href="{% url 'store' %}">Store <span class="sr-only">(current)</span></a>
-              </li>
-            </ul>
 
-            <!--search-->
-              <div class="container-search">
+              </li>
+                <li>
+                    <div class="container-search">
                   <form class="searchbox">
-                      <input type="search" placeholder="Search..." name="search" class="searchbox-input" onkeyup="buttonUp();" required>
+
                       <input type="submit" class="searchbox-submit btn btn-warning">
+                       <input type="search" placeholder="Search..." name="search" class="searchbox-input" onkeyup="buttonUp();" required>
                       <span class="searchbox-icon "><i class="fa fa-search"></i></span>
                   </form>
               </div>
+                </li>
+            </ul>
+
+            <!--search-->
+
 
             <!--end search-->
-
+              {% if user.is_authenticated %}
+               <div class="testing">
+              <a href="{% url 'sign_up'%}"class="btn btn-warning" style="margin-left: 50px; margin-right: 50px; border-radius: 12px;">{{user.username}}</a>
+              <a href="{% url 'sign_out'%}"class="btn btn-warning" style="margin-left: 50px; margin-right: 50px; border-radius: 12px;">logout</a>
+            </div>
+              {%else%}
               <!-- Register Button -->
             <div class="testing">
-              <a href="#"class="btn btn-warning" style="margin-left: 50px; margin-right: 50px; border-radius: 12px;">Register</a>
+              <a href="{% url 'sign_up'%}"class="btn btn-warning" style="margin-left: 50px; margin-right: 50px; border-radius: 12px;">Register</a>
             </div>
               <!-- End -->
 
               <!-- The below div holds the shopping cart link and login button -->
             <div class="form-inline my-2 my-lg-0">
-                <a href="#"class="btn btn-warning" style="margin-left: 10px; margin-right: 50px; border-radius: 12px;">Login</a>
+                <a href=""class="btn btn-warning" style="margin-left: 10px; margin-right: 50px; border-radius: 12px;">Login</a>
                 <a href="{% url 'cart' %}">
                     <img  id="cart-icon" src="{% static 'images/cart.png' %}">
                 </a>
                 <p id="cart-total">0</p>
             </div>
+              {%endif%}
               <!-- End -->
 
           </div>
@@ -152,6 +163,21 @@
          <div class="container">
 
                 {% block content %}
+                 {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                           {% if message.tags %}
+                            <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+
+                              {% endif %}
+                              {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                            </div>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
 
                 {% endblock content %}
          </div>

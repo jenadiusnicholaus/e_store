@@ -19,11 +19,12 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-
 # To connect our new urls from urls.py in our app folder we have to add include here
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('', include('authentication.urls')),
 ]
 # Appending to the list above and grabbing MEDIA_URL ('/images/') and setting that to media root which points to
 # static files
