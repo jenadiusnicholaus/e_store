@@ -39,7 +39,7 @@ INSTALLED_APPS = [
 
     # our own app
     'store.apps.StoreConfig',
-    "authentication.apps.AuthenticationConfig",
+    "authentication",
 
     # third part app if any
 ]
@@ -132,4 +132,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images/products')
 
 
 # when the user  logins should be redirected  to home page of your choice
+
+LOGIN_URL = 'sign_in'
+# LOGOUT_OUT = 'signed_out'
 LOGIN_REDIRECT_URL = '/'
+
+
+AUTH_USER_MODEL = "authentication.User"

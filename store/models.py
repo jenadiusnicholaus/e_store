@@ -1,19 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.urls import reverse
 
-
-# Create your models here.
-
-class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    name = models.CharField(max_length=200, null=True)
-    email = models.CharField(max_length=200, null=True)
-    # Added fields
-    mobile = models.IntegerField(default=0, null=True, blank=True)
-    tin = models.IntegerField(default=0, null=True, blank=True)
-
-    def __str__(self):
-        return self.name
+from ecommerce import settings
 
 
 class Product(models.Model):
@@ -33,35 +21,22 @@ class Product(models.Model):
             url = ""
         return url
 
+    def get_add_to_cart_url(self):
+        return reverse('add_to_cart', kwargs={
+            'pk': self.pk
+        })
 
-class Order(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
-    date_ordered = models.DateTimeField(auto_now_add=True)
-    complete = models.BooleanField(default=False, null=True, blank=False)
-    transaction_id = models.CharField(max_length=200, null=True)
-
-    def __str__(self):
-        return str(self.id)
-
-    # Getting the total value of the cart
-    @property
-    def get_cart_total(self):
-        orderitems = self.orderitem_set.all()
-        total = sum([item.get_total for item in orderitems])
-        return total
-
-    # Getting the total value of the item
-    @property
-    def get_cart_items(self):
-        orderitems = self.orderitem_set.all()
-        total = sum([item.quantity for item in orderitems])
-        return total
+    def get_remove_from_cart_url(self):
+        return reverse('remove_from_cart', kwargs={
+            'pk': self.pk
+        })
 
 
 class OrderItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, blank=True, null=True)
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
-    quantity = models.IntegerField(default=0, null=True, blank=True)
+    ordered = models.BooleanField(default=False, null=True)
+    quantity = models.IntegerField(default=1, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -70,9 +45,48 @@ class OrderItem(models.Model):
         return total
 
 
+class Order(models.Model):
+    ref_id = models.CharField(max_length=40, null=True)
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
+    date_ordered = models.DateTimeField(auto_now_add=True)
+    complete = models.BooleanField(default=False, null=True, blank=False)
+    order_items = models.ManyToManyField(OrderItem)
+    ordered = models.BooleanField(default=False, null=True)
+    shippingAddress = models.ForeignKey('ShippingAddress', on_delete=models.CASCADE, null=True)
+    transaction_id = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return str(self.customer)
+
+    @property
+    def shipping(self):
+        shipping = False
+        orderitems = self.order_items.all()
+        for i in orderitems:
+            if not i.product.digital:
+                shipping = True
+        return shipping
+
+    # Getting the total value of the cart
+    @property
+    def get_cart_total(self):
+        orderitems = self.order_items.all()
+        total = sum([item.get_total for item in orderitems])
+        return total
+
+    # Getting the total value of the item
+    @property
+    def get_cart_items(self):
+        total_items = 0
+        orderitems = self.order_items.all()
+        total = sum([item.quantity for item in orderitems])
+        return total
+
+
 class ShippingAddress(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
+    # order must have shipping address and not viscera
+    # order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
     address = models.CharField(max_length=200, null=True)
     city = models.CharField(max_length=200, null=True)
     state = models.CharField(max_length=200, null=True)
